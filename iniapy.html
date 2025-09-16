@@ -50,6 +50,342 @@
 </header>
 
 <div class="container">
+    <div class="step" id="page1">
+        <h2>1. Pilih Jumlah Robux</h2>
+        <div class="packet-list">
+            <div class="packet" data-r="100" data-price="10000">100 R$</div>
+            <div class="packet" data-r="250" data-price="25000">250 R$</div>
+            <div class="packet" data-r="400" data-price="40000">400 R$</div>
+            <div class="packet" data-r="600" data-price="60000">600 R$</div>
+            <div class="packet" data-r="800" data-price="80000">800 R$</div>
+            <div class="packet" data-r="1000" data-price="100000">1000 R$</div>
+            <div class="packet" data-r="1250" data-price="125000">1250 R$</div>
+            <div class="packet" data-r="1400" data-price="140000">1400 R$</div>
+        </div>
+        <input type="number" id="customR" placeholder="Atau masukkan jumlah custom (min 10 R$)">
+        <p>Minimal order <strong>10 R$</strong></p>
+
+        <label style="margin-top:20px;display:block">Username Roblox:
+            <input type="text" id="username" placeholder="Contoh: RobloxPlayer123" autocomplete="off">
+        </label>
+
+        <div id="summary" style="margin-top:25px">
+            <p><strong>Jumlah Robux:</strong> <span id="sR">-</span></p>
+            <p><strong>Gamepass:</strong> <span id="sGP">-</span></p>
+            <p><strong>Total Bayar:</strong> <span id="sTotal">-</span></p>
+            <p><strong>Username:</strong> <span id="sUser">-</span></p>
+        </div>
+
+        <button id="enterBtn" disabled>Enter →</button>
+    </div>
+
+    <div class="step hidden" id="page2">
+        <h2>2. Pembayaran</h2>
+
+        <div class="promo-box">
+            <label>Kode Promo:
+                <input type="text" id="promoPay" placeholder="Ketik di sini" maxlength="20">
+            </label>
+            <p id="promoPayMsg" style="font-size:0.9em;margin-top:4px"></p>
+        </div>
+
+        <div id="summaryPay">
+            <p><strong>Jumlah Robux:</strong> <span id="spR">-</span></p>
+            <p><strong>Gamepass:</strong> <span id="spGP">-</span></p>
+            <p><strong>Sub-total:</strong> <span id="spPrice">-</span></p>
+            <p><strong>Diskon Promo:</strong> <span id="spDisc">-</span></p>
+            <p><strong>Total Bayar:</strong> <span id="spTotal">-</span></p>
+            <p><strong>Username:</strong> <span id="spUser">-</span></p>
+        </div>
+
+        <div class="payment-method">
+            <label><input type="radio" name="payment" value="QRIS"> QRIS</label>
+            <label><input type="radio" name="payment" value="DANA"> DANA</label>
+        </div>
+
+        <label>Email:
+            <input type="email" id="email" placeholder="email@domain.com">
+        </label>
+        <label>No WhatsApp:
+            <input type="text" id="wa" placeholder="08xxxxxxxxxx">
+        </label>
+
+        <button id="payBtn" disabled>Bayar Sekarang</button>
+    </div>
+
+    <div class="step hidden" id="page3">
+        <div class="dana-page">
+            <div class="dana-header">
+                <div class="dana-logo">D</div>
+                <h1>Pembayaran Dana</h1>
+                <p>Transaksi aman dan cepat</p>
+            </div>
+            <div class="dana-body">
+                <div class="merchant-info">
+                    <div class="merchant-icon"><i class="fas fa-store"></i></div>
+                    <div class="merchant-details">
+                        <h3>CikoStore</h3>
+                        <p>Order Robux</p>
+                    </div>
+                </div>
+
+                <div class="amount-section">
+                    <div class="amount-label">Total Pembayaran</div>
+                    <div class="amount" id="danaAmount">Rp 0</div>
+                    <div class="amount-note">Termasuk biaya layanan</div>
+                </div>
+
+                <div class="payment-method">
+                    <div class="payment-method-header">
+                        <div class="payment-method-title">Metode Pembayaran</div>
+                    </div>
+                    <div class="dana-account">
+                        <div class="dana-account-icon">D</div>
+                        <div class="dana-account-info">
+                            <h4>Dana</h4>
+                            <p>0812-3456-7890</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="pay-button" onclick="processDanaPayment()">
+                    <i class="fas fa-lock"></i> Bayar dengan Dana
+                </button>
+
+                <div class="security-note">
+                    <i class="fas fa-shield-alt"></i>
+                    Transaksi ini aman dengan enkripsi 256-bit
+                </div>
+            </div>
+        </div>
+
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h3>Memproses Pembayaran</h3>
+                <p>Mohon tunggu sebentar...</p>
+            </div>
+        </div>
+
+        <div class="success-message hidden" id="successMessage" style="background:#4CAF50;color:white;padding:15px;border-radius:8px;margin-top:20px;display:flex;align-items:center">
+            <i class="fas fa-check-circle" style="margin-right:10px;font-size:20px"></i>
+            Pembayaran berhasil!
+        </div>
+    </div>
+
+    <div class="step hidden" id="page4">
+        <h2>✅ Pembayaran Berhasil</h2>
+        <p>Terima kasih! Robux akan masuk ke akun <strong id="doneUser"></strong> dalam 1-15 menit.</p>
+        <button onclick="location.reload()">Order Lagi</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+    // Inisialisasi Email.js dengan Public Key yang baru
+    emailjs.init("RBbYWItGS-mYbINW8"); 
+
+    function kirimEmailNotifikasi(data) {
+        emailjs.send("service_avb6jij", "template_rh5vm1j", {
+            username: data.username,
+            robux: data.robux,
+            total: data.total,
+            email: data.email,
+            wa: data.wa,
+            metode: data.metode,
+            date: new Date().toLocaleString('id-ID')
+        }).then(
+            () => console.log("✅ Email terkirim ke Gmail!"),
+            (err) => console.error("❌ Gagal kirim email:", err)
+        );
+    }
+
+    /* ---------- data ---------- */
+    const packets = document.querySelectorAll('.packet');
+    let selectedR = 0, selectedPrice = 0, diskon = 0;
+
+    /* ---------- pilih paket ---------- */
+    packets.forEach(p => {
+        p.addEventListener('click', () => {
+            packets.forEach(q => q.style.background = "#222");
+            p.style.background = "var(--primary)";
+            selectedR = +p.dataset.r;
+            selectedPrice = +p.dataset.price;
+            updateAll();
+        });
+    });
+
+    /* ---------- custom R$ ---------- */
+    document.getElementById('customR').addEventListener('input', e => {
+        const val = +e.target.value;
+        if (val >= 10) {
+            selectedR = val;
+            selectedPrice = val * 1000;
+            packets.forEach(q => q.style.background = "#222");
+            updateAll();
+        }
+    });
+
+    /* ---------- promo ---------- */
+    document.getElementById('promoPay').addEventListener('input', updateAll);
+
+    function hitungDiskon(kode) {
+        const valid = ["ANGGAGANTENG", "CIKOSTORE"];
+        return valid.includes(kode.toUpperCase().replace(/\s/g, '')) ? 0.10 : 0;
+    }
+
+    /* ---------- update ringkasan ---------- */
+    function updateAll() {
+        if (selectedR < 10) return;
+        const gp = Math.ceil(selectedR / 0.7);
+        const promoVal = hitungDiskon(document.getElementById('promoPay').value);
+        diskon = promoVal * selectedPrice;
+        const total = selectedPrice - diskon;
+
+        // halaman 1 (tanpa diskon)
+        document.getElementById('sR').textContent = selectedR;
+        document.getElementById('sGP').textContent = gp;
+        document.getElementById('sTotal').textContent = selectedPrice.toLocaleString();
+        document.getElementById('sUser').textContent = document.getElementById('username').value;
+
+        // halaman 2 (dengan diskon)
+        document.getElementById('spR').textContent = selectedR;
+        document.getElementById('spGP').textContent = gp;
+        document.getElementById('spPrice').textContent = selectedPrice.toLocaleString();
+        document.getElementById('spDisc').textContent = diskon ? `Rp ${diskon.toLocaleString()}` : 'Tidak ada';
+        document.getElementById('spTotal').textContent = total.toLocaleString();
+        document.getElementById('spUser').textContent = document.getElementById('username').value;
+
+        cekBisaEnter();
+        cekBisaBayar();
+    }
+
+    /* ---------- cek bisa enter ---------- */
+    function cekBisaEnter() {
+        const user = document.getElementById('username').value.trim();
+        document.getElementById('enterBtn').disabled = !(selectedR >= 10 && user);
+    }
+
+    document.getElementById('username').addEventListener('input', cekBisaEnter);
+
+    /* ---------- tombol enter ---------- */
+    document.getElementById('enterBtn').addEventListener('click', () => {
+        document.getElementById('page1').classList.add('hidden');
+        document.getElementById('page2').classList.remove('hidden');
+    });
+
+    /* ---------- cek bisa bayar ---------- */
+    function cekBisaBayar() {
+        const email = document.getElementById('email').value.trim();
+        const wa = document.getElementById('wa').value.trim();
+        const metode = document.querySelector('input[name=payment]:checked');
+        document.getElementById('payBtn').disabled = !(selectedR >= 10 && email && wa && metode);
+    }
+
+    ['email', 'wa'].forEach(id => document.getElementById(id).addEventListener('input', cekBisaBayar));
+    document.querySelectorAll('input[name=payment]').forEach(el => el.addEventListener('change', cekBisaBayar));
+
+    /* ---------- tombol bayar -> halaman DANA ---------- */
+    document.getElementById('payBtn').addEventListener('click', () => {
+        const total = document.getElementById('spTotal').textContent.replace(/[^0-9]/g, '');
+        sessionStorage.setItem('totalBayar', total);
+        document.getElementById('page2').classList.add('hidden');
+        document.getElementById('page3').classList.remove('hidden');
+        // inject nominal ke halaman DANA
+        document.getElementById('danaAmount').textContent = 'Rp ' + Number(total).toLocaleString('id-ID');
+    });
+
+    /* ---------- proses bayar DANA ---------- */
+    function processDanaPayment() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+            const success = document.getElementById('successMessage');
+            success.style.display = 'flex';
+            const btn = document.querySelector('#page3 .pay-button');
+            btn.innerHTML = '<i class="fas fa-check"></i> Pembayaran Selesai';
+            btn.disabled = true;
+            btn.style.background = '#4CAF50';
+            btn.style.cursor = 'not-allowed';
+
+            // --- PANGGIL FUNGSI KIRIM EMAIL DI SINI ---
+            const selectedMethod = document.querySelector('input[name=payment]:checked').value;
+            const totalBayar = document.getElementById('spTotal').textContent.replace(/[^0-9]/g, '');
+            const dataTransaksi = {
+                username: document.getElementById('username').value,
+                robux: selectedR,
+                total: totalBayar,
+                email: document.getElementById('email').value,
+                wa: document.getElementById('wa').value,
+                metode: selectedMethod,
+            };
+            kirimEmailNotifikasi(dataTransaksi);
+            // ------------------------------------------
+
+            // tampilkan halaman selesai
+            setTimeout(() => {
+                document.getElementById('page3').classList.add('hidden');
+                document.getElementById('page4').classList.remove('hidden');
+                document.getElementById('doneUser').textContent = document.getElementById('username').value;
+            }, 2000);
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CikoStore – Top-Up Robux #1 Indonesia</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root{--primary:#ff6d00;--bg:#111;--text:#fff}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:"Segoe UI",sans-serif}
+    body{background:var(--bg);color:var(--text);padding:20px}
+    header{text-align:center;margin-bottom:30px}
+    h1{font-size:2.2em;color:var(--primary)}
+    .container{max-width:600px;margin:auto}
+    .step{margin-bottom:25px}
+    .step h2{margin-bottom:10px;font-size:1.3em;color:var(--primary)}
+    .packet-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-bottom:15px}
+    .packet{background:#222;border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:.2s}
+    .packet:hover{background:var(--primary);color:#000}
+    input[type=text],input[type=number],input[type=email]{width:100%;padding:10px;border:none;border-radius:5px;margin-top:5px}
+    button{background:var(--primary);color:#000;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;font-weight:bold;margin-top:10px}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .hidden{display:none}
+    #summary{background:#222;padding:15px;border-radius:8px;margin-top:20px}
+    #summaryPay{background:#222;padding:15px;border-radius:8px;margin-bottom:20px}
+    .payment-method{display:flex;gap:10px;flex-wrap:wrap}
+    .payment-method label{background:#333;padding:10px;border-radius:5px;cursor:pointer}
+    .promo-box{margin-top:15px}
+
+    /* DANA PAGE */
+    .dana-page{background:#fff;color:#111;border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+    .dana-header{background:linear-gradient(135deg,#118eea 0%,#0a7bc7 100%);color:#fff;padding:30px 20px;text-align:center}
+    .dana-logo{width:70px;height:70px;background:#fff;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;color:#118eea}
+    .dana-body{padding:25px}
+    .amount{font-size:32px;font-weight:bold;color:#118eea;margin:10px 0}
+    .dana-account{display:flex;align-items:center;margin:15px 0}
+    .dana-account-icon{width:40px;height:40px;background:#118eea;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;margin-right:12px}
+    .security-note{font-size:12px;color:#666;text-align:center;margin-top:10px}
+    .loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000}
+    .loading-content{background:#fff;border-radius:20px;padding:40px;text-align:center;max-width:300px}
+    .spinner{width:50px;height:50px;border:4px solid #f3f3f3;border-top:4px solid #118eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>🎮 CikoStore – Top-Up Robux #1 Indonesia</h1>
+    <p>Aman, Cepat, Tanpa Ribet!</p>
+</header>
+
+<div class="container">
     <!-- HALAMAN 1 – PILIH + USERNAME + KONFIRMASI + ENTER -->
     <div class="step" id="page1">
         <h2>1. Pilih Jumlah Robux</h2>
